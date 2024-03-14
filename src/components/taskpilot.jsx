@@ -50,26 +50,29 @@ const TaskPilotPro = () => {
                 <Box
                     display="flex"
                     flexDirection="column"
-                    alignItems="flex-end"
                     style={{ height: '50vh', overflowY: 'auto' }}
                     ref={chatContainerRef}
                 >
-                    <Box width="100%">
-                        {messages.map((msg, index) => (
+                    {messages.map((msg, index) => (
+                        <Box
+                            key={index}
+                            display="flex" // Added display flex
+                            alignItems="center" // Added align items to center the message
+                            justifyContent={msg.sender === 'user' ? 'flex-end' : 'flex-start'} // Align messages based on sender
+                            mt={1} // Added margin top
+                        >
                             <Box
-                                key={index}
-                                textAlign={msg.sender === 'user' ? 'right' : 'left'}
                                 bgcolor={msg.sender === 'user' ? 'primary.main' : 'grey.200'}
                                 color={msg.sender === 'user' ? 'white' : 'black'}
                                 p={1}
-                                borderRadius={2}
-                                mb={1}
-                                alignSelf={msg.sender === 'user' ? 'flex-end' : 'flex-start'}
+                                borderRadius={5}
+                                alignSelf="flex-start" // Align message box within its flex container
+                                maxWidth="70%" // Limit width to 70% of container
                             >
                                 {msg.message}
                             </Box>
-                        ))}
-                    </Box>
+                        </Box>
+                    ))}
                 </Box>
                 <Box mt={4}>
                     <form onSubmit={handleSubmit}>
