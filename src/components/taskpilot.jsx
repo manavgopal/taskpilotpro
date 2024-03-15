@@ -7,6 +7,7 @@ import LandingPage from './landingPage';
 import IconButton from '@mui/material/IconButton';
 import SendIcon from '@mui/icons-material/Send';
 import InputAdornment from '@mui/material/InputAdornment';
+import image from './image.png'; 
 
 const TaskPilotPro = () => {
     const [messages, setMessages] = useState([]);
@@ -18,8 +19,11 @@ const TaskPilotPro = () => {
     const handleCardClick = async (card) => {
     setShowLandingPage(false);
     try {
-        const response = await sendMessageToBackend("Get me the feature level summary for the task #2");
-        console.log('Response from backend:', response.data);
+        console.log('Card clicked:', card);
+        sendConversation("Get me the feature level summary for the task #2");
+       
+        // const response = await sendMessageToBackend("Get me the feature level summary for the task #2");
+        // console.log('Response from backend:', response.data);
     } catch (error) {
         console.error('Error sending message to backend:', error);
     }
@@ -106,23 +110,27 @@ const TaskPilotPro = () => {
     }, []); // Empty dependency array
 
     const handleSubmit = async (e) => {
-        e.preventDefault();
+        if(e){e.preventDefault();}
         if (inputValue.trim() !== '') {
-            setIsFetching(true);
-            sendMessage(inputValue, 'user', Date.now());
-            setInputValue('');
-            try {
-                const botResponse = await sendMessageToBackend(inputValue);
-                console.log('Bot response:', botResponse.data);
-                sendMessage(botResponse.data.message, 'assistant', Date.now());
-
-            } catch (error) {
-                console.error('Error getting bot response:', error);
-                sendMessage('Error occurred. Please try again.', 'assistant', Date.now());
-            }
-            setIsFetching(false);
+            await sendConversation(inputValue);
         }
+
     };
+    async function sendConversation(text) {
+        setIsFetching(true);
+        sendMessage(text, 'user', Date.now());
+        setInputValue('');
+        try {
+            const botResponse = await sendMessageToBackend(text);
+            console.log('Bot response:', botResponse.data);
+            sendMessage(botResponse.data.message, 'assistant', Date.now());
+
+        } catch (error) {
+            console.error('Error getting bot response:', error);
+            sendMessage('Error occurred. Please try again.', 'assistant', Date.now());
+        }
+        setIsFetching(false);
+    }
  
     const sendMessage = (message, sender, timestamp) => {
         setMessages((prevMessages) => [...prevMessages, { message, sender, timestamp }]);
@@ -142,12 +150,26 @@ const TaskPilotPro = () => {
         }
     };
  
- 
+    const urlParams = new URLSearchParams(window.location.search);
+    const userId = urlParams.get('userid');
+
     return (
-        <Container>
+        <Container style={{ paddingTop: '10px', height: '100%' }}>
             <Box mt={4}>
                 {showLandingPage && messages.length === 0 ? (
-                    <LandingPage onCardClick={handleCardClick} />
+                    <>
+                        <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', paddingBottom: '20px' }}>
+                            <img src={image} alt="ProjectPilot logo" style={{ width: '150px', height: '150px' }} />
+                            <Typography variant="h5" style={{ fontWeight: 'bold', fontFamily: 'Segoe UI' }}>ProjectPilot</Typography>
+                            <Typography variant="subtitle2" style={{ fontFamily: 'Segoe UI', fontWeight: 'normal' }}>Empowering teams , streamlining communications</Typography>
+                        </div>
+                        <Box>
+                            <Typography variant="h7" style={{ textAlign: 'left', fontFamily: 'Segoe UI', fontWeight: 'normal' }}>Hey {userId}, welcome to TaskPilot!</Typography>
+                        </Box>
+                        <Box>
+                            <Typography variant="h7" style={{ textAlign: 'left', fontFamily: 'Segoe UI', fontWeight: 'normal' }}>Here are the projects that you are associated with. Please click to get the details:</Typography>
+                        </Box><LandingPage onCardClick={handleCardClick} />
+                    </>
                 ) : (
                     <Box
                     display="flex"
