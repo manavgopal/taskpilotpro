@@ -81,6 +81,9 @@ const TaskPilotPro = () => {
     useEffect(() => {
         const intervalId = setInterval(async () => {
             // Get the timestamp from the last message
+            if (messages.length === 0) {
+                return;
+            }
             const lastMessage = messages[messages.length - 1];
             const timestamp = lastMessage.timestamp || Date.now();
             console.log('Last message:', lastMessage);
