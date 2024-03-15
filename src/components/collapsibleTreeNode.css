@@ -1,0 +1,61 @@
+.tree-node {
+    margin: 5px 0;
+    padding: 10px;
+    border: 1px solid #ccc;
+    /* Added border */
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    /* Added shadow for depth */
+    background-color: #fff;
+    /* Optional: set background to white */
+    transition: box-shadow 0.3s ease;
+    /* Smooth transition for shadow on hover */
+    position: relative;
+}
+
+.tree-node:hover {
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+    /* Slightly darker shadow on hover */
+}
+
+.node-header {
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    user-select: none;
+}
+
+.toggle {
+    padding-right: 10px;
+    font-size: 18px;
+    user-select: none;
+}
+
+.task-info {
+    display: block;
+    padding: 5px 0;
+}
+
+/* Add styles for different task states */
+.to-do {
+    background-color: #d9edf7;
+    border-color: #bce8f1;
+    /* Lighter border color for to-do items */
+}
+
+.in-progress {
+    background-color: #f0ad4e;
+    border-color: #eea236;
+    /* Lighter border color for in-progress items */
+}
+
+.completed {
+    background-color: #5cb85c;
+    border-color: #4cae4c;
+    /* Lighter border color for completed items */
+}
+
+/* Styles for children nodes */
+.tree-children {
+    margin-left: 15px;
+    padding-left: 5px;
+}

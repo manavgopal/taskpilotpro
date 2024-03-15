@@ -5,6 +5,8 @@ import Typography from '@mui/material/Typography';
 import IconButton from '@mui/material/IconButton';
 import SendIcon from '@mui/icons-material/Send';
 import InputAdornment from '@mui/material/InputAdornment';
+import CollapsibleTreeNode from './collapsibleTreeNode';
+import taskData from './data.json'; // Your task data file
 
 const TaskPilotPro = () => {
     const [messages, setMessages] = useState([]);
@@ -116,8 +118,14 @@ const TaskPilotPro = () => {
     };
 
     const sendMessageToBackend = async (message) => {
+        const urlParams = new URLSearchParams(window.location.search);
+        const userId = urlParams.get('userid');
+        if (!userId) {
+            console.error('User ID is missing in the URL');
+            return;
+        }
         const requestBody = {
-            userId: "111",
+            userId: userId,
             input: message
         };
 
@@ -140,26 +148,39 @@ const TaskPilotPro = () => {
                     style={{ height: '50vh', overflowY: 'auto' }}
                     ref={chatContainerRef}
                 >
-                    {messages.map((msg, index) => (<>
-                        <Typography variant="caption" color="textSecondary" alignSelf={msg.sender === 'user' ? 'flex-end' : 'flex-start'} mr={1} >
-                            {msg.sender === 'user' ? 'You' : 'TaskPilot'} &nbsp; {new Date(msg.timestamp).toLocaleDateString(undefined, { day: '2-digit', month: '2-digit' })} {new Date(msg.timestamp).toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit', hour12: false })}
-                        </Typography>
-                        <Box key={index} textAlign={msg.sender === 'user' ? 'right' : 'left'}
-                            alignSelf={msg.sender === 'user' ? 'flex-end' : 'flex-start'}
-                            mb={1}
-                            mr={1}
-                        >
-                            <Box
-                                bgcolor={msg.sender === 'user' ? '#E6E6FA' : '#F5F5F5'}
-                                p={1}
-                                borderRadius={2}
-                                style={{ fontFamily: 'Segoe UI', fontSize: '14px' }}
-                            >
-                                {msg.message}
-                            </Box>
-                        </Box>
-                    </>
-                    ))}
+                    {messages.map((msg, index) => {
+                        let message;
+                        try {
+                            message = JSON.parse(msg.message);
+                        } catch (error) {
+                            message = msg.message;
+                        }
+                        return (
+                            <React.Fragment key={index}>
+                                <Typography variant="caption" color="textSecondary" alignSelf={msg.sender === 'user' ? 'flex-end' : 'flex-start'} mr={1} >
+                                    {msg.sender === 'user' ? 'You' : 'TaskPilot'} &nbsp; {new Date(msg.timestamp).toLocaleDateString(undefined, { day: '2-digit', month: '2-digit' })} {new Date(msg.timestamp).toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit', hour12: false })}
+                                </Typography>
+                                <Box textAlign={msg.sender === 'user' ? 'right' : 'left'}
+                                    alignSelf={msg.sender === 'user' ? 'flex-end' : 'flex-start'}
+                                    mb={1}
+                                    mr={1}
+                                >
+                                    {typeof message === 'object' ? (
+                                        <CollapsibleTreeNode task={taskData} />
+                                    ) : (
+                                        <Box
+                                            bgcolor={msg.sender === 'user' ? '#E6E6FA' : '#F5F5F5'}
+                                            p={1}
+                                            borderRadius={2}
+                                            style={{ fontFamily: 'Segoe UI', fontSize: '14px' }}
+                                        >
+                                            {message}
+                                        </Box>
+                                    )}
+                                </Box>
+                            </React.Fragment>
+                        )
+                    })}
                 </Box>
                 <Box mt={4}>
                     <form onSubmit={handleSubmit}>
@@ -170,12 +191,16 @@ const TaskPilotPro = () => {
                                 fullWidth
                                 value={inputValue}
                                 onChange={(e) => setInputValue(e.target.value)}
+                                InputProps={{
+                                    endAdornment: (
+                                        <InputAdornment position="end">
+                                            <IconButton type="submit" style={{ backgroundColor: '#E6E6FA', color: 'black' }}>
+                                                <SendIcon />
+                                            </IconButton>
+                                        </InputAdornment>
+                                    ),
+                                }}
                             />
-                            <Box ml={2}>
-                                <IconButton type="submit" style={{ backgroundColor: '#E6E6FA', color: 'black' }}>
-                                    <SendIcon />
-                                </IconButton>
-                            </Box>
                         </Box>
                     </form>
                 </Box>

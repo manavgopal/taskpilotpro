@@ -1,0 +1,100 @@
+{
+    "TaskSummary": {
+        "TaskId": 2,
+        "Title": "DLPFeature",
+        "AssignedTo": "Sofydebug",
+        "AssignedToDisplayName": "Sofy debug",
+        "ChangedDate": "2024-03-15T08:10:37.61Z",
+        "State": "To Do",
+        "WorkItemType": "Epic"
+    },
+    "RelatedWorkItems": [
+        {
+            "TaskSummary": {
+                "TaskId": 1,
+                "Title": "DLPTask1",
+                "AssignedTo": "Sofydebug",
+                "AssignedToDisplayName": "Sofy debug",
+                "ChangedDate": "2024-03-15T08:30:40.77Z",
+                "State": "In Progress",
+                "WorkItemType": "Task"
+            },
+            "RelatedWorkItems": [
+                {
+                    "TaskSummary": {
+                        "TaskId": 3,
+                        "Title": "DLPTask3",
+                        "AssignedTo": "Sofydebug",
+                        "AssignedToDisplayName": "Sofy debug",
+                        "ChangedDate": "2024-03-15T08:14:06.753Z",
+                        "State": "Completed",
+                        "WorkItemType": "Task"
+                    },
+                    "RelatedWorkItems": []
+                },
+                {
+                    "TaskSummary": {
+                        "TaskId": 4,
+                        "Title": "DLPTask4",
+                        "AssignedTo": "Sofydebug",
+                        "AssignedToDisplayName": "Sofy debug",
+                        "ChangedDate": "2024-03-15T08:15:38.95Z",
+                        "State": "To Do",
+                        "WorkItemType": "Task"
+                    },
+                    "RelatedWorkItems": [
+                        {
+                            "TaskSummary": {
+                                "TaskId": 5,
+                                "Title": "DLPTask5",
+                                "AssignedTo": "testuser2",
+                                "AssignedToDisplayName": "test user2",
+                                "ChangedDate": "2024-03-15T08:14:42.763Z",
+                                "State": "In Progress",
+                                "WorkItemType": "Task"
+                            },
+                            "RelatedWorkItems": [
+                                {
+                                    "TaskSummary": {
+                                        "TaskId": 6,
+                                        "Title": "DLPTask6",
+                                        "AssignedTo": "testuser1",
+                                        "AssignedToDisplayName": "test user1",
+                                        "ChangedDate": "2024-03-15T08:23:34.87Z",
+                                        "State": "Completed",
+                                        "WorkItemType": "Task"
+                                    },
+                                    "RelatedWorkItems": []
+                                },
+                                {
+                                    "TaskSummary": {
+                                        "TaskId": 7,
+                                        "Title": "DLPTask7",
+                                        "AssignedTo": "testuser1",
+                                        "AssignedToDisplayName": "test user1",
+                                        "ChangedDate": "2024-03-15T08:25:24.22Z",
+                                        "State": "To Do",
+                                        "WorkItemType": "Task"
+                                    },
+                                    "RelatedWorkItems": []
+                                },
+                                {
+                                    "TaskSummary": {
+                                        "TaskId": 8,
+                                        "Title": "DLPTask8",
+                                        "AssignedTo": "testuser1",
+                                        "AssignedToDisplayName": "test user1",
+                                        "ChangedDate": "2024-03-15T08:25:39.13Z",
+                                        "State": "Completed",
+                                        "WorkItemType": "Task"
+                                    },
+                                    "RelatedWorkItems": []
+                                }
+                            ]
+                        }
+                    ]
+                }
+            ]
+        }
+    ]
+}
