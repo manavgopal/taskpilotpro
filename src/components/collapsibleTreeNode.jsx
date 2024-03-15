@@ -6,7 +6,7 @@ import ChevronRightIcon from '@mui/icons-material/ChevronRight';
 import Box from '@mui/material/Box';
 
 const CollapsibleTreeNode = ({ task }) => {
-    const [isOpen, setIsOpen] = useState(true);
+    const [isOpen, setIsOpen] = useState(false);
 
     // Determine CSS class based on the task state
     const stateClass = task.TaskSummary.State.toLowerCase().replace(/\s+/g, '-');

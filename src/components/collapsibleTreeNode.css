@@ -10,7 +10,7 @@
     transition: box-shadow 0.3s ease;
     /* Smooth transition for shadow on hover */
     position: relative;
-    border-radius: 10px;
+    border-radius: 20px;
 }
 
 .tree-node:hover {

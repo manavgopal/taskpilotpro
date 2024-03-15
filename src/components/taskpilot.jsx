@@ -3,7 +3,7 @@ import { TextField, Container, Box } from '@mui/material';
 import axios from 'axios';
 import Typography from '@mui/material/Typography';
 import LandingPage from './landingPage';
-
+import taskData from './data.json';
 import IconButton from '@mui/material/IconButton';
 import SendIcon from '@mui/icons-material/Send';
 import InputAdornment from '@mui/material/InputAdornment';
@@ -207,7 +207,7 @@ const TaskPilotPro = () => {
                                         mr={1}
                                     >
                                         {typeof message === 'object' ? (
-                                            <CollapsibleTreeNode task={message} />
+                                            <CollapsibleTreeNode task={taskData} />
                                         ) : (
                                             <Box
                                                 bgcolor={msg.sender === 'user' ? '#E6E6FA' : '#F5F5F5'}
