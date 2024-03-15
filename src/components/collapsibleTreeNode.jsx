@@ -23,7 +23,7 @@ const CollapsibleTreeNode = ({ task }) => {
                     <strong>Task ID:</strong> {task.TaskSummary.TaskId} <br />
                     <strong>Title:</strong> {task.TaskSummary.Title} <br />
                     <strong>Assigned To:</strong> {task.TaskSummary.AssignedToDisplayName} <br />
-                    <strong>State:</strong> {task.TaskSummary.State}
+                    <strong>State:</strong> {task.TaskSummary.State === 'Doing' ? 'In Progress' : task.TaskSummary.State}
                 </Typography>
             </Box>
             {isOpen && task.RelatedWorkItems && (
