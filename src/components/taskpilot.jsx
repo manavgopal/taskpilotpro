@@ -2,24 +2,36 @@ import React, { useState, useEffect, useRef } from 'react';
 import { TextField, Button, Container, Box } from '@mui/material';
 import axios from 'axios';
 import Typography from '@mui/material/Typography';
-
+import LandingPage from './landingPage';
+ 
 const TaskPilotPro = () => {
     const [messages, setMessages] = useState([]);
     const [inputValue, setInputValue] = useState('');
     const chatContainerRef = useRef(null);
     const [isFetching, setIsFetching] = useState(false);
-
+    const [showLandingPage, setShowLandingPage] = useState(true);
+   
+    const handleCardClick = async (card) => {
+    setShowLandingPage(false);
+    try {
+        const response = await sendMessageToBackend("Get me the feature level summary for the task #2");
+        console.log('Response from backend:', response.data);
+    } catch (error) {
+        console.error('Error sending message to backend:', error);
+    }
+};
+ 
     useEffect(() => {
         // Fetch recent conversations when component mounts
         fetchRecentConversations();
     }, []);
-
+ 
     useEffect(() => {
         // Scroll to the bottom of the chat container whenever messages change
-        chatContainerRef.current.scrollTop = chatContainerRef.current.scrollHeight;
+        if(chatContainerRef && chatContainerRef.current ) chatContainerRef.current.scrollTop = chatContainerRef.current.scrollHeight;
     }, [messages]);
-
-
+ 
+ 
     // Calling the backend to get the recent conversations for a particular user id.
     const fetchRecentConversations = async () => {
         if (isFetching) {
@@ -32,7 +44,7 @@ const TaskPilotPro = () => {
             return;
         }
         setIsFetching(true);
-
+ 
         try {
             const response = await axios.post('http://udayanbaidya:3004/recent-conversations', { userId: userId });
             const conversations = response.data;
@@ -50,7 +62,7 @@ const TaskPilotPro = () => {
         }
         setIsFetching(false);
     };
-
+ 
     const fetchUpdatedConversations = async (timestamp) => {
         if (isFetching) {
             return
@@ -62,7 +74,7 @@ const TaskPilotPro = () => {
             console.error('User ID is missing in the URL');
             return;
         }
-
+ 
         try {
             const response = await axios.post('http://udayanbaidya:3004/recent-conversations', { userId: userId, lastTimestamp: timestamp });
             const conversations = response.data;
@@ -77,7 +89,7 @@ const TaskPilotPro = () => {
         }
         setIsFetching(false);
     };
-
+ 
     useEffect(() => {
         const intervalId = setInterval(async () => {
             // Get the timestamp from the last message
@@ -93,7 +105,7 @@ const TaskPilotPro = () => {
         // Clear the interval when the component is unmounted
         return () => clearInterval(intervalId);
     }, [messages]); // Add messages and isFetching to the dependency array
-
+ 
     const handleSubmit = async (e) => {
         e.preventDefault();
         if (inputValue.trim() !== '') {
@@ -103,24 +115,24 @@ const TaskPilotPro = () => {
                 const botResponse = await sendMessageToBackend(inputValue);
                 console.log('Bot response:', botResponse.data);
                 sendMessage(botResponse.data.message, 'assistant');
-
+ 
             } catch (error) {
                 console.error('Error getting bot response:', error);
                 sendMessage('Error occurred. Please try again.', 'assistant');
             }
         }
     };
-
+ 
     const sendMessage = (message, sender, timestamp) => {
         setMessages((prevMessages) => [...prevMessages, { message, sender, timestamp }]);
     };
-
+ 
     const sendMessageToBackend = async (message) => {
         const requestBody = {
             userId: "111",
             input: message
         };
-
+ 
         try {
             const response = await axios.post('http://udayanbaidya:3004/conversation', requestBody);
             return response;
@@ -128,12 +140,15 @@ const TaskPilotPro = () => {
             console.error('Error getting post response:', error);
         }
     };
-
-
+ 
+ 
     return (
         <Container>
             <Box mt={4}>
-                <Box
+                {showLandingPage && messages.length === 0 ? (
+                    <LandingPage onCardClick={handleCardClick} />
+                ) : (
+                    <Box
                     display="flex"
                     flexDirection="column"
                     alignItems="flex-end"
@@ -161,6 +176,8 @@ const TaskPilotPro = () => {
                         </Box>
                     ))}
                 </Box>
+                )}
+               
                 <Box mt={4}>
                     <form onSubmit={handleSubmit}>
                         <Box display="flex" alignItems="center">
@@ -183,5 +200,5 @@ const TaskPilotPro = () => {
         </Container>
     );
 };
-
+ 
 export default TaskPilotPro;
