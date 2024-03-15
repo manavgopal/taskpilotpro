@@ -2,6 +2,9 @@ import React, { useState, useEffect, useRef } from 'react';
 import { TextField, Button, Container, Box } from '@mui/material';
 import axios from 'axios';
 import Typography from '@mui/material/Typography';
+import IconButton from '@mui/material/IconButton';
+import SendIcon from '@mui/icons-material/Send';
+import InputAdornment from '@mui/material/InputAdornment';
 
 const TaskPilotPro = () => {
     const [messages, setMessages] = useState([]);
@@ -71,7 +74,9 @@ const TaskPilotPro = () => {
             const newMessages = conversations.map(conversation => [
                 { message: conversation.Message, sender: conversation.Role, timestamp: conversation.TimeStamp }
             ]).sort((a, b) => a.timestamp - b.timestamp);
-            setMessages(prevMessages => [...prevMessages, ...newMessages]); // Appends new messages to the existing ones
+            if (newMessages.length > 0) {
+                setMessages(prevMessages => [...prevMessages, ...newMessages]); // Appends new messages to the existing ones
+            }
         } catch (error) {
             console.error('Error fetching updated conversations:', error);
         }
@@ -80,34 +85,29 @@ const TaskPilotPro = () => {
 
     useEffect(() => {
         const intervalId = setInterval(async () => {
-            // Get the timestamp from the last message
-            if (messages.length === 0) {
-                return;
-            }
-            const lastMessage = messages[messages.length - 1];
-            const timestamp = lastMessage.timestamp || Date.now();
-            console.log('Last message:', lastMessage);
-            console.log('Timestamp:', timestamp);
-            await fetchUpdatedConversations(timestamp);
+            await fetchUpdatedConversations(Date.now());
         }, 1000);
+
         // Clear the interval when the component is unmounted
         return () => clearInterval(intervalId);
-    }, [messages]); // Add messages and isFetching to the dependency array
+    }, []); // Empty dependency array
 
     const handleSubmit = async (e) => {
         e.preventDefault();
         if (inputValue.trim() !== '') {
+            setIsFetching(true);
             sendMessage(inputValue, 'user', Date.now());
             setInputValue('');
             try {
                 const botResponse = await sendMessageToBackend(inputValue);
                 console.log('Bot response:', botResponse.data);
-                sendMessage(botResponse.data.message, 'assistant');
+                sendMessage(botResponse.data.message, 'assistant', Date.now());
 
             } catch (error) {
                 console.error('Error getting bot response:', error);
-                sendMessage('Error occurred. Please try again.', 'assistant');
+                sendMessage('Error occurred. Please try again.', 'assistant', Date.now());
             }
+            setIsFetching(false);
         }
     };
 
@@ -140,25 +140,25 @@ const TaskPilotPro = () => {
                     style={{ height: '50vh', overflowY: 'auto' }}
                     ref={chatContainerRef}
                 >
-                    {messages.map((msg, index) => (
+                    {messages.map((msg, index) => (<>
+                        <Typography variant="caption" color="textSecondary" alignSelf={msg.sender === 'user' ? 'flex-end' : 'flex-start'} mr={1} >
+                            {msg.sender === 'user' ? 'You' : 'TaskPilot'} &nbsp; {new Date(msg.timestamp).toLocaleDateString(undefined, { day: '2-digit', month: '2-digit' })} {new Date(msg.timestamp).toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit', hour12: false })}
+                        </Typography>
                         <Box key={index} textAlign={msg.sender === 'user' ? 'right' : 'left'}
                             alignSelf={msg.sender === 'user' ? 'flex-end' : 'flex-start'}
-                            display="flex"
-                            flexDirection="column"
+                            mb={1}
+                            mr={1}
                         >
-                            <Typography variant="caption" color="textSecondary" style={{ display: 'inline-block' }}>
-                                {msg.sender === 'user' ? 'You' : 'TaskPilot'} &nbsp; {new Date(msg.timestamp).toLocaleDateString(undefined, { day: '2-digit', month: '2-digit' })} {new Date(msg.timestamp).toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit', hour12: false })}
-                            </Typography>
                             <Box
                                 bgcolor={msg.sender === 'user' ? '#E6E6FA' : '#F5F5F5'}
                                 p={1}
                                 borderRadius={2}
-                                mb={1}
-                                style={{ fontFamily: 'Segoe UI', fontSize: '14px', display: 'inline-block' }}
+                                style={{ fontFamily: 'Segoe UI', fontSize: '14px' }}
                             >
                                 {msg.message}
                             </Box>
                         </Box>
+                    </>
                     ))}
                 </Box>
                 <Box mt={4}>
@@ -172,9 +172,9 @@ const TaskPilotPro = () => {
                                 onChange={(e) => setInputValue(e.target.value)}
                             />
                             <Box ml={2}>
-                                <Button variant="contained" style={{ backgroundColor: '#E6E6FA', color: 'black' }} type="submit">
-                                    Send
-                                </Button>
+                                <IconButton type="submit" style={{ backgroundColor: '#E6E6FA', color: 'black' }}>
+                                    <SendIcon />
+                                </IconButton>
                             </Box>
                         </Box>
                     </form>
