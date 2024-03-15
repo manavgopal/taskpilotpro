@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { TextField, Button, Container, Box } from '@mui/material';
+import { TextField, Container, Box } from '@mui/material';
 import axios from 'axios';
 import Typography from '@mui/material/Typography';
 import LandingPage from './landingPage';
@@ -9,7 +9,6 @@ import SendIcon from '@mui/icons-material/Send';
 import InputAdornment from '@mui/material/InputAdornment';
 import image from './image.png';
 import CollapsibleTreeNode from './collapsibleTreeNode';
-import taskData from './data.json'; // Your task data file
 
 const TaskPilotPro = () => {
     const [messages, setMessages] = useState([]);
@@ -58,6 +57,7 @@ const TaskPilotPro = () => {
         try {
             const response = await axios.post('http://udayanbaidya:3004/recent-conversations', { userId: userId });
             const conversations = response.data;
+            console.log('Fetch RecentConversations:', conversations)
             // Add recent conversations to the messages state
             const newMessages = conversations
                 .map(conversation => ({
@@ -88,7 +88,7 @@ const TaskPilotPro = () => {
         try {
             const response = await axios.post('http://udayanbaidya:3004/recent-conversations', { userId: userId, lastTimestamp: timestamp });
             const conversations = response.data;
-            console.log('Updated conversations:', conversations, timestamp);
+            console.log('Fetch UpdatedConversations:', conversations, timestamp);
             // Add updated conversations to the messages state
             const newMessages = conversations.map(conversation => [
                 { message: conversation.Message, sender: conversation.Role, timestamp: conversation.TimeStamp }
@@ -105,7 +105,7 @@ const TaskPilotPro = () => {
     useEffect(() => {
         const intervalId = setInterval(async () => {
             await fetchUpdatedConversations(Date.now());
-        }, 1000);
+        }, 100);
 
         // Clear the interval when the component is unmounted
         return () => clearInterval(intervalId);
@@ -136,6 +136,7 @@ const TaskPilotPro = () => {
 
     const sendMessage = (message, sender, timestamp) => {
         setMessages((prevMessages) => [...prevMessages, { message, sender, timestamp }]);
+        console.log('Messages on user input:', messages);
     };
 
     const sendMessageToBackend = async (message) => {
@@ -162,31 +163,33 @@ const TaskPilotPro = () => {
     const userId = urlParams.get('userid');
 
     return (
-        <Container style={{ paddingTop: '10px', height: '100%' }}>
+        <Container>
             <Box mt={4}>
                 {showLandingPage && messages.length === 0 ? (
                     <>
-                        <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', paddingBottom: '20px' }}>
-                            <img src={image} alt="ProjectPilot logo" style={{ width: '150px', height: '150px' }} />
-                            <Typography variant="h5" style={{ fontWeight: 'bold', fontFamily: 'Segoe UI' }}>ProjectPilot</Typography>
-                            <Typography variant="subtitle2" style={{ fontFamily: 'Segoe UI', fontWeight: 'normal' }}>Empowering teams , streamlining communications</Typography>
+                        <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', paddingBottom: '10px' }}>
+                            <img src={image} alt="ProjectPilot logo" style={{ width: '80px', height: '80px' }} />
+                            <Typography variant="h6" style={{ fontWeight: 'bold', fontFamily: 'Segoe UI' }}>ProjectPilot</Typography>
+                            <Typography variant="caption" style={{ fontFamily: 'Segoe UI', fontWeight: 'normal' }}>Empowering teams , streamlining communications</Typography>
                         </div>
                         <Box>
-                            <Typography variant="h7" style={{ textAlign: 'left', fontFamily: 'Segoe UI', fontWeight: 'normal' }}>Hey {userId}, welcome to TaskPilot!</Typography>
+                            <Typography variant="body1" style={{ textAlign: 'center', fontFamily: 'Segoe UI', fontWeight: 'normal' }}>Hey {userId}, welcome to ProjectPilot!</Typography>
                         </Box>
-                        <Box>
-                            <Typography variant="h7" style={{ textAlign: 'left', fontFamily: 'Segoe UI', fontWeight: 'normal' }}>Here are the projects that you are associated with. Please click to get the details:</Typography>
-                        </Box><LandingPage onCardClick={handleCardClick} />
+                        <Box style={{ paddingBottom: '10px' }}>
+                            <Typography variant="body1" style={{ textAlign: 'center', fontFamily: 'Segoe UI', fontWeight: 'normal' }}>Here are the projects that you are associated with. Please click to get the details:</Typography>
+                        </Box>
+                        <LandingPage onCardClick={handleCardClick} />
                     </>
                 ) : (
                     <Box
                         display="flex"
                         flexDirection="column"
                         alignItems="flex-end"
-                        style={{ height: '50vh', overflowY: 'auto' }}
+                        style={{ height: '67vh', overflowY: 'auto', paddingTop: '10px' }}
                         ref={chatContainerRef}
                     >
                         {messages.map((msg, index) => {
+                            if (!msg.message) return null; // If message is empty, don't render it
                             let message;
                             try {
                                 message = JSON.parse(msg.message);
@@ -196,7 +199,7 @@ const TaskPilotPro = () => {
                             return (
                                 <React.Fragment key={index}>
                                     <Typography variant="caption" color="textSecondary" alignSelf={msg.sender === 'user' ? 'flex-end' : 'flex-start'} mr={1} >
-                                        {msg.sender === 'user' ? 'You' : 'TaskPilot'} &nbsp; {new Date(msg.timestamp).toLocaleDateString(undefined, { day: '2-digit', month: '2-digit' })} {new Date(msg.timestamp).toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit', hour12: false })}
+                                        {msg.sender === 'user' ? 'You' : 'ProjectPilot'} &nbsp; {new Date(msg.timestamp).toLocaleDateString(undefined, { day: '2-digit', month: '2-digit' })} {new Date(msg.timestamp).toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit', hour12: false })}
                                     </Typography>
                                     <Box textAlign={msg.sender === 'user' ? 'right' : 'left'}
                                         alignSelf={msg.sender === 'user' ? 'flex-end' : 'flex-start'}
@@ -204,7 +207,7 @@ const TaskPilotPro = () => {
                                         mr={1}
                                     >
                                         {typeof message === 'object' ? (
-                                            <CollapsibleTreeNode task={taskData} />
+                                            <CollapsibleTreeNode task={message} />
                                         ) : (
                                             <Box
                                                 bgcolor={msg.sender === 'user' ? '#E6E6FA' : '#F5F5F5'}
