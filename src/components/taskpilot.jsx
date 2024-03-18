@@ -46,7 +46,6 @@ const TaskPilotPro = () => {
         }
         const urlParams = new URLSearchParams(window.location.search);
         const userId = urlParams.get('userid');
-        const Timestamp = Date.now();
         if (!userId) {
             console.error('User ID is missing in the URL');
             return;

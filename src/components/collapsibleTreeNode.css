@@ -61,6 +61,12 @@
     /* Lighter border color for completed items */
 }
 
+.done {
+    background-color: #5cb85c;
+    border-color: #4cae4c;
+    /* Lighter border color for completed items */
+}
+
 /* Styles for children nodes */
 .tree-children {
     margin-left: 15px;
