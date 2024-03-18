@@ -17,26 +17,24 @@ const TaskPilotPro = () => {
     const [isFetching, setIsFetching] = useState(false);
     const [showLandingPage, setShowLandingPage] = useState(true);
 
+    // Function to handle card click event
     const handleCardClick = async (card) => {
         setShowLandingPage(false);
         try {
             console.log('Card clicked:', card);
-            sendConversation("Get me the feature level summary for the task #2");
-
-            // const response = await sendMessageToBackend("Get me the feature level summary for the task #2");
-            // console.log('Response from backend:', response.data);
+            sendConversation("Get me the feature level summary for the task 2");
         } catch (error) {
             console.error('Error sending message to backend:', error);
         }
     };
 
+    // Fetch recent conversations when component mounts
     useEffect(() => {
-        // Fetch recent conversations when component mounts
         fetchRecentConversations();
     }, []);
 
+    // Scroll to the bottom of the chat container whenever messages change
     useEffect(() => {
-        // Scroll to the bottom of the chat container whenever messages change
         if (chatContainerRef && chatContainerRef.current) chatContainerRef.current.scrollTop = chatContainerRef.current.scrollHeight;
     }, [messages]);
 
@@ -48,6 +46,7 @@ const TaskPilotPro = () => {
         }
         const urlParams = new URLSearchParams(window.location.search);
         const userId = urlParams.get('userid');
+        const Timestamp = Date.now();
         if (!userId) {
             console.error('User ID is missing in the URL');
             return;
@@ -55,7 +54,8 @@ const TaskPilotPro = () => {
         setIsFetching(true);
 
         try {
-            const response = await axios.post('http://udayanbaidya:3004/recent-conversations', { userId: userId });
+            //const response = await axios.post('http://udayanbaidya:3004/recent-conversations', { userId: userId });
+            const response = await axios.get(`http://localhost:3004/recent-conversations/?userId=${userId}`);
             const conversations = response.data;
             console.log('Fetch RecentConversations:', conversations)
             // Add recent conversations to the messages state
@@ -73,26 +73,33 @@ const TaskPilotPro = () => {
         setIsFetching(false);
     };
 
-    const fetchUpdatedConversations = async (timestamp) => {
+    const fetchUpdatedConversations = async () => {
         if (isFetching) {
             return
         }
         setIsFetching(true);
         const urlParams = new URLSearchParams(window.location.search);
         const userId = urlParams.get('userid');
+        const lastMessage = messages[messages.length - 1];
+        console.log("lastMessage", messages, lastMessage)
+        const Timestamp = lastMessage?.timestamp || Date.now() - 1000;
         if (!userId) {
             console.error('User ID is missing in the URL');
             return;
         }
 
         try {
-            const response = await axios.post('http://udayanbaidya:3004/recent-conversations', { userId: userId, lastTimestamp: timestamp });
+            //const response = await axios.post('http://udayanbaidya:3004/recent-conversations', { userId: userId, lastTimestamp: timestamp });
+            const response = await axios.get(`http://localhost:3004/recent-conversations/?userId=${userId}&lastTimestamp=${Timestamp}`);
             const conversations = response.data;
-            console.log('Fetch UpdatedConversations:', conversations, timestamp);
+            console.log('Fetch UpdatedConversations:', conversations, Timestamp);
             // Add updated conversations to the messages state
-            const newMessages = conversations.map(conversation => [
-                { message: conversation.Message, sender: conversation.Role, timestamp: conversation.TimeStamp }
-            ]).sort((a, b) => a.timestamp - b.timestamp);
+            const newMessages = conversations.map(conversation => ({
+                "message": conversation.Message,
+                "sender": conversation.Role,
+                "timestamp": conversation.TimeStamp
+            })).sort((a, b) => a.timestamp - b.timestamp);
+            console.log('New messages:', newMessages)
             if (newMessages.length > 0) {
                 setMessages(prevMessages => [...prevMessages, ...newMessages]); // Appends new messages to the existing ones
             }
@@ -104,12 +111,12 @@ const TaskPilotPro = () => {
 
     useEffect(() => {
         const intervalId = setInterval(async () => {
-            await fetchUpdatedConversations(Date.now());
-        }, 100);
+            await fetchUpdatedConversations();
+        }, 1000);
 
         // Clear the interval when the component is unmounted
         return () => clearInterval(intervalId);
-    }, []); // Empty dependency array
+    }, [messages]); // Empty dependency array
 
     const handleSubmit = async (e) => {
         if (e) { e.preventDefault(); }
@@ -142,18 +149,23 @@ const TaskPilotPro = () => {
     const sendMessageToBackend = async (message) => {
         const urlParams = new URLSearchParams(window.location.search);
         const userId = urlParams.get('userid');
+        const inputString = message;
+        const userDisplayName = userId;
+        console.log('message backend:', message, userId, inputString, userDisplayName);
         if (!userId) {
             console.error('User ID is missing in the URL');
             return;
         }
-        const requestBody = {
-            userId: userId,
-            input: message
-        };
+        // const requestBody = {
+        //     userId: userId,
+        //     input: message
+        // };
 
         try {
-            const response = await axios.post('http://udayanbaidya:3004/conversation', requestBody);
+            //const response = await axios.post('http://udayanbaidya:3004/conversation', requestBody);
+            const response = await axios.get(`http://localhost:3004/conversation/?userId=${userId}&input="${inputString}"`);
             return response;
+
         } catch (error) {
             console.error('Error getting post response:', error);
         }
@@ -196,6 +208,7 @@ const TaskPilotPro = () => {
                             } catch (error) {
                                 message = msg.message;
                             }
+                            console.log('Message:', message);
                             return (
                                 <React.Fragment key={index}>
                                     <Typography variant="caption" color="textSecondary" alignSelf={msg.sender === 'user' ? 'flex-end' : 'flex-start'} mr={1} >
@@ -207,7 +220,7 @@ const TaskPilotPro = () => {
                                         mr={1}
                                     >
                                         {typeof message === 'object' ? (
-                                            <CollapsibleTreeNode task={taskData} />
+                                            <CollapsibleTreeNode task={message} />
                                         ) : (
                                             <Box
                                                 bgcolor={msg.sender === 'user' ? '#E6E6FA' : '#F5F5F5'}
